@@ -2,6 +2,7 @@
  *  Connection Manager plugin
  *
  *  Copyright (C) 2018 Jolla Ltd.
+ *  Chupligin Sergey (C) 2020 <neochapay@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2 as
@@ -12,6 +13,7 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  */
+#define CONNMAN_API_SUBJECT_TO_CHANGE
 
 #include <connman/notifier.h>
 #include <connman/plugin.h>
@@ -343,17 +345,17 @@ tethering_command(
 
 static
 void
-tethering_changed_notify(
-    struct connman_technology* tech,
-    bool on)
+tethering_service_enabled(
+    enum connman_service_type type,
+    bool enabled)
 {
-    if (on) {
-        DBG("Tethering on");
+    if (enabled) {
+        DBG("Tethering enabled");
         if (tethering_command(CMD_AP_MODE)) {
             tethering_wait(tethering_check_ap);
         }
     } else {
-        DBG("Tethering off");
+        DBG("Tethering disabled");
         if (tethering_command(CMD_STA_MODE)) {
             tethering_wait(NULL);
         }
@@ -362,7 +364,7 @@ tethering_changed_notify(
 
 struct connman_notifier tethering_plugin_notifier = {
     .name = "wmtWifi tethering notifier",
-    .tethering_changed = tethering_changed_notify
+    .service_enabled = tethering_service_enabled
 };
 
 static
